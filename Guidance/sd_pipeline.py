@@ -3,6 +3,7 @@
 import torch
 import torch.nn as nn
 
+import os
 from tqdm import tqdm
 from PIL import Image
 from diffusers import DDIMScheduler
@@ -13,19 +14,34 @@ class StableDiffusion(nn.Module):
     def __init__(self, device, config):
         super().__init__()
 
-        self.model_key = config.pretrain_model
+        self.model_key = config.pretrain_model_id
+        self.model_path = os.path.expanduser(config.pretrain_model_path)
+        self.dtype = torch.float16 if config.fp16 else torch.float32
         self.device = device
 
         print(f"[INFO] loading {self.model_key}...")
 
-        self.vae = AutoencoderKL.from_pretrained(config.pretrain_model, subfolder="vae").to(device)
-        self.tokenizer = CLIPTokenizer.from_pretrained(config.pretrain_model, subfolder="tokenizer")
-        if self.model_key == "stabilityai/stable-diffusion-xl-base-1.0":
-            self.tokenizer_2 = CLIPTokenizer.from_pretrained(config.pretrain_model, subfolder="tokenizer_2")
-            self.text_encoder_2 = CLIPTextModelWithProjection.from_pretrained(config.pretrain_model, subfolder="text_encoder_2").to(device)
-        self.text_encoder = CLIPTextModel.from_pretrained(config.pretrain_model, subfolder="text_encoder").to(device)
-        self.unet = UNet2DConditionModel.from_pretrained(config.pretrain_model, subfolder="unet").to(device)
-        self.scheduler = DDIMScheduler.from_pretrained(self.model_key, subfolder="scheduler")
+        if self.model_path:
+            self.vae = AutoencoderKL.from_pretrained(os.path.join(self.model_path, 'vae'),
+                                                     variant = 'fp16').to(device)
+            self.tokenizer = CLIPTokenizer.from_pretrained(os.path.join(self.model_path, 'tokenizer'))
+            if self.model_key == "stabilityai/stable-diffusion-xl-base-1.0":
+                self.tokenizer_2 = CLIPTokenizer.from_pretrained(self.model_path, subfolder="tokenizer_2")
+                self.text_encoder_2 = CLIPTextModelWithProjection.from_pretrained(self.model_path, subfolder="text_encoder_2").to(device)
+            self.text_encoder = CLIPTextModel.from_pretrained(os.path.join(self.model_path, 'text_encoder'),
+                                                              variant = 'fp16').to(device)
+            self.unet = UNet2DConditionModel.from_pretrained(os.path.join(self.model_path, 'unet'),
+                                                             variant = 'fp16').to(device)
+            self.scheduler = DDIMScheduler.from_pretrained(os.path.join(self.model_path, 'scheduler'))
+        else:
+            self.vae = AutoencoderKL.from_pretrained(self.model_key, subfolder="vae").to(device)
+            self.tokenizer = CLIPTokenizer.from_pretrained(self.model_key, subfolder="tokenizer")
+            if self.model_key == "stabilityai/stable-diffusion-xl-base-1.0":
+                self.tokenizer_2 = CLIPTokenizer.from_pretrained(self.model_key, subfolder="tokenizer_2")
+                self.text_encoder_2 = CLIPTextModelWithProjection.from_pretrained(self.model_key, subfolder="text_encoder_2").to(device)
+            self.text_encoder = CLIPTextModel.from_pretrained(self.model_key, subfolder="text_encoder").to(device)
+            self.unet = UNet2DConditionModel.from_pretrained(self.model_key, subfolder="unet").to(device)
+            self.scheduler = DDIMScheduler.from_pretrained(self.model_key, subfolder="scheduler")
 
         #print(dir(self.scheduler))
         print(self.scheduler.final_alpha_cumprod)

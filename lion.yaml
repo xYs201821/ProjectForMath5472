@@ -3,13 +3,15 @@ prompt: "Stunning sunset over a futuristic city, with towering skyscrapers and f
 work_dir: "Output/"
 
 # guidance
-#pretrain_model: "stabilityai/stable-diffusion-xl-base-1.0"
-pretrain_model: "stabilityai/stable-diffusion-2-1"
+#pretrain_model_id: "stabilityai/stable-diffusion-xl-base-1.0"
+pretrain_model_id: "stabilityai/stable-diffusion-2-1"
+pretrain_model_path: "~/autodl-tmp/stable-diffusion-2-1/"
 guidance_scale: 7.5
 
 # training parameters
 device: "cuda"
 seed: 42
+fp16: True
 lr: 1.0e-2
 weight_decay: 0.0
 max_steps: 10000

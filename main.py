@@ -3,14 +3,13 @@ import os
 
 from Utility.miscellanea import read_config
 # suppress partial model loading warning
-import nerfacc
 import torch
 from Guidance import StableDiffusion
 
 if __name__ == "__main__":
-    dict = {"prompt": ["Astronaut in a jungle, cold color palette, muted colors, detailed, 8k"],
+    dict = {"prompt": ["a beautiful and powerful mysterious sorceress, smile, sitting on a rock, lightning magic, hat, detailed leather clothing with gemstones, dress, castle background, digital art, hyperrealistic, fantasy, dark art, artstation"],
             "negative_prompt": [""],
-            "pixel": (1024, 1024),
+            "pixel": (512, 512),
             "num_steps": 100,
             "cfg": 7.5}
     config = read_config("lion.yaml")
