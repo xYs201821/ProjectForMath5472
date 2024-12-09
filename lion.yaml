@@ -1,14 +1,20 @@
 # general
 prompt: "A pancake."
 negative_prompt: ""
-batch_size: 4
+batch_size: 1
 pixel: (512, 512)
-num_steps: 50
-guidance_scale: 100
-seed: 42
+num_steps: 5000
+guidance_scale: 50
+seed: 0
+time_weight: "minus_cumprod"
+unet_phi: lora
 work_dir: "Output/"
 
-# guidance
+#lora params
+lora_rank: 32
+lora_alpha: 128
+
+#pretrain_model
 #pretrain_model_id: "stabilityai/stable-diffusion-xl-base-1.0"
 pretrain_model_id:  "CompVis/stable-diffusion-v1-4"
 #pretrain_model_path: "~/autodl-tmp/CompVis/stable-diffusion-v1-4/"

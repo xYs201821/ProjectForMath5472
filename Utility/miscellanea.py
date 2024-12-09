@@ -32,8 +32,8 @@ def parse_yaml(file_path):
 
 class DecayWeightScheduler:
     def __init__(self, 
-                 initial_wd=0.05,
-                 final_wd=0.001,
+                 initial_wd=0.03,
+                 final_wd=0.01,
                  decay_type='linear',
                  warmup_steps=100,
                  total_steps=1000):
@@ -50,7 +50,7 @@ class DecayWeightScheduler:
         # Calculate progress after warmup
         progress = (step - self.warmup_steps) / (self.total_steps - self.warmup_steps)
         progress = min(1.0, max(0.0, progress))
-        progress = torch.tensor(progress)
+        progress = torch.tensor(progress, dtype=torch.float16)
         if self.decay_type == 'linear':
             return self.initial_wd + (self.final_wd - self.initial_wd) * progress
             

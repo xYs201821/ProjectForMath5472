@@ -1,4 +1,4 @@
-# Original code2: https://huggingface.co/blog/stable_diffusion
+# Original code: https://huggingface.co/blog/stable_diffusion
 import torch
 import torch.nn as nn
 import imageio
@@ -12,19 +12,17 @@ from transformers import logging, CLIPTokenizer, CLIPTextModel, CLIPTextModelWit
 class StableDiffusion(nn.Module):
     def __init__(self, device, config):
         super().__init__()
-
         self.model_key = config['pretrain_model_id']
         self.device = device
         self.dtype = torch.float16
         print(f"[INFO] loading {self.model_key}...")
         try:
-            print('test')
             self.model_path = os.path.expanduser(config['pretrain_model_path'])
             self.vae = AutoencoderKL.from_pretrained(os.path.join(self.model_path, 'vae'), variant = 'fp16', torch_dtype=self.dtype).to(device)
             self.tokenizer = CLIPTokenizer.from_pretrained(os.path.join(self.model_path, 'tokenizer'), torch_dtype=self.dtype)
             self.text_encoder = CLIPTextModel.from_pretrained(os.path.join(self.model_path, 'text_encoder'), variant = 'fp16', torch_dtype=self.dtype).to(device)
             self.unet = UNet2DConditionModel.from_pretrained(os.path.join(self.model_path, 'unet'), variant = 'fp16', torch_dtype=self.dtype).to(device)
-            self.scheduler = DDIMScheduler.from_pretrained(os.path.join(self.model_path, 'scheduler'), torch_dtype=self.dtype)        
+            self.scheduler = DDIMScheduler.from_pretrained(os.path.join(self.model_path, 'scheduler'), torch_dtype=self.dtype)    
         except:
             self.vae = AutoencoderKL.from_pretrained(self.model_key, subfolder=" vae", torch_dtype=self.dtype).to(device)
             self.tokenizer = CLIPTokenizer.from_pretrained(self.model_key, subfolder="tokenizer", torch_dtype=self.dtype)
@@ -34,7 +32,6 @@ class StableDiffusion(nn.Module):
 
         #print(dir(self.scheduler))
 
-    @torch.no_grad()
     def get_text_embeddings(self, prompt, negative_prompt):
             text_input = self.tokenizer(prompt, padding="max_length", max_length=self.tokenizer.model_max_length,
                                         truncation=True, return_tensors="pt")
@@ -43,7 +40,7 @@ class StableDiffusion(nn.Module):
             uncond_input = self.tokenizer(negative_prompt, padding="max_length", max_length=self.tokenizer.model_max_length,
                                           truncation=True, return_tensors="pt")
             uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(self.device))[0]
-            return torch.cat([uncond_embeddings, text_embeddings])
+            return torch.cat([uncond_embeddings, text_embeddings]).detach()
     
     def decode_from_latents(self, latents):
         image_latents = 1 / 0.18215 * latents
@@ -77,31 +74,17 @@ class StableDiffusion(nn.Module):
             noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
             noise_pred = noise_pred_uncond + cfg * (noise_pred_text - noise_pred_uncond)
             latents = self.scheduler.step(noise_pred, t, latents).prev_sample
-        #return latents at t=0
         return latents
 
     def generate_img(self, img_arguments):
         prompts = img_arguments["prompt"]
         negative_prompts = img_arguments["negative_prompt"]
         width, height = img_arguments["pixel"]
-        num_steps = img_arguments["num_steps"]
+        num_steps = 100
         cfg = img_arguments["cfg"]
         batch_size = img_arguments["batch_size"]
-        latents = self.get_image_latents(text_embeddings=self.get_text_embeddings(prompts, negative_prompts), batch_size,
-                                         height=height, width=width, num_steps=num_steps, cfg=cfg)
+        latents = self.get_image_latents(text_embeddings=self.get_text_embeddings(prompts, negative_prompts), batch_size=batch_size, height=height, width=width, num_steps=num_steps, cfg=cfg)
         images = self.decode_from_latents(latents)
         #return image ready-to-display
         return self.display_image(images)
     
-    @torch.no_grad()
-    def get_noise_pred(self, latents, text_embeddings, t, cfg):
-        noise_randn = torch.randn_like(latents).to(self.device)
-        noise_latents = self.scheduler.add_noise(latents, noise_randn, t)
-        noise_pred = self.unet(torch.cat([noise_latents, noise_latents]), t, encoder_hidden_states=text_embeddings).sample
-        noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
-        noise_pred = noise_pred_uncond + cfg * (noise_pred_text - noise_pred_uncond)
-        return noise_pred, noise_randn
-
-
-        
-
