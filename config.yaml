@@ -1,0 +1,21 @@
+# general
+prompt: "Pancakes on a plate."
+negative_prompt: ""
+size: 1
+pixel: (512, 512)
+num_steps: 2500 
+guidance_scale: 7.5
+lr: 3e-2
+seed: 42
+time_weight: "sqrt_minus_cumprod"
+work_dir: "Output/"
+
+#lora params
+unet_phi: lora
+lora_rank: 32
+lora_alpha: 256
+phi_lr: 1e-4
+
+#pretrain_model
+pretrain_model_id:  "CompVis/stable-diffusion-v1-4"
+pretrain_model_path: "~/autodl-tmp/CompVis/stable-diffusion-v1-4/"

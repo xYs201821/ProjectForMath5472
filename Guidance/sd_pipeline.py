@@ -1,13 +1,12 @@
 # Original code: https://huggingface.co/blog/stable_diffusion
 import torch
 import torch.nn as nn
-import imageio
 import os
 from tqdm import tqdm
 from PIL import Image
 from diffusers import DDIMScheduler
-from diffusers import AutoencoderKL, UNet2DConditionModel, StableDiffusionPipeline
-from transformers import logging, CLIPTokenizer, CLIPTextModel, CLIPTextModelWithProjection
+from diffusers import AutoencoderKL, UNet2DConditionModel
+from transformers import CLIPTokenizer, CLIPTextModel
 
 class StableDiffusion(nn.Module):
     def __init__(self, device, config):
@@ -32,6 +31,7 @@ class StableDiffusion(nn.Module):
 
         #print(dir(self.scheduler))
 
+    @torch.no_grad()
     def get_text_embeddings(self, prompt, negative_prompt):
             text_input = self.tokenizer(prompt, padding="max_length", max_length=self.tokenizer.model_max_length,
                                         truncation=True, return_tensors="pt")
@@ -42,6 +42,7 @@ class StableDiffusion(nn.Module):
             uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(self.device))[0]
             return torch.cat([uncond_embeddings, text_embeddings]).detach()
     
+    @torch.no_grad()
     def decode_from_latents(self, latents):
         image_latents = 1 / 0.18215 * latents
         return self.vae.decode(image_latents).sample
@@ -53,6 +54,7 @@ class StableDiffusion(nn.Module):
         latent = self.vae.encode(input_img * 2 - 1)
         return 0.18215 * latent.latent_dist.sample()
 
+    @torch.no_grad()
     def display_image(self, images):
         images = (images / 2 + 0.5).clamp(0, 1)
         images = images.detach().cpu().permute(0, 2, 3, 1).numpy()
@@ -62,8 +64,8 @@ class StableDiffusion(nn.Module):
         return pil_images
 
     @torch.no_grad()
-    def get_image_latents(self, text_embeddings, batch_size=1, height=64, width=64, num_steps=50, cfg=7.5):
-        latents = torch.randn((batch_size, self.unet.config.in_channels, height//8, width//8)).to(self.device)
+    def get_image_latents(self, init_particles, text_embeddings, batch_size=1, height=64, width=64, num_steps=50, cfg=7.5):
+        latents = init_particles
         self.scheduler.set_timesteps(num_steps)
         for t in tqdm(self.scheduler.timesteps):
             # expand the latents if we are doing classifier-free guidance to avoid doing two forward passes.
@@ -76,15 +78,14 @@ class StableDiffusion(nn.Module):
             latents = self.scheduler.step(noise_pred, t, latents).prev_sample
         return latents
 
-    def generate_img(self, img_arguments):
-        prompts = img_arguments["prompt"]
-        negative_prompts = img_arguments["negative_prompt"]
+    def generate_img(self, init_particles, img_arguments):
         width, height = img_arguments["pixel"]
         num_steps = 100
         cfg = img_arguments["cfg"]
-        batch_size = img_arguments["batch_size"]
-        latents = self.get_image_latents(text_embeddings=self.get_text_embeddings(prompts, negative_prompts), batch_size=batch_size, height=height, width=width, num_steps=num_steps, cfg=cfg)
-        images = self.decode_from_latents(latents)
+        batch_size = img_arguments["size"]
+        prompts = img_arguments["prompt"]*batch_size
+        negative_prompts = img_arguments["negative_prompt"]*batch_size
+        latents = self.get_image_latents(init_particles.clone(), text_embeddings=self.get_text_embeddings(prompts, negative_prompts), batch_size=batch_size, height=height, width=width, num_steps=num_steps, cfg=cfg)
         #return image ready-to-display
-        return self.display_image(images)
+        return latents
     

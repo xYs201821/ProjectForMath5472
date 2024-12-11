@@ -1,0 +1,24 @@
+{
+    "training_info": {
+        "seed": 0,
+        "size": 4,
+        "num_steps": 2500,
+        "lr": 0.03,
+        "phi_lr": 0.0001,
+        "cfg": 7.5,
+        "prompt": [
+            "Pancakes on a plate."
+        ],
+        "negative_prompt": [
+            ""
+        ]
+    },
+    "metrics": {
+        "losses": [],
+        "epoch_times": [],
+        "unet_phi_times": [],
+        "particle_times": [],
+        "peak_memory_usage": [],
+        "learning_rates": []
+    }
+}

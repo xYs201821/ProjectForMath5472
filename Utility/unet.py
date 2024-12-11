@@ -1,6 +1,9 @@
+"""
+Original code: https://github.com/huggingface/diffusers/blob/main/src/diffusers/models/unets/unet_2d_condition.py
+"""
+
 from diffusers import UNet2DConditionModel
 import torch
-from torch import nn
 
 class UNet:
     def __init__(

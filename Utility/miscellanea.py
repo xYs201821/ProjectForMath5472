@@ -1,6 +1,54 @@
 import torch
 import yaml
 import ast
+import json
+import os
+import argparse
+
+def save_metrics_json(metrics, work_dir, config, name='vsd'):
+    """
+    Save metrics as JSON with proper formatting
+    """
+    os.makedirs(work_dir, exist_ok=True)
+    
+    # Convert numpy arrays and floats to regular Python types
+    json_metrics = {
+        'training_info': {
+            'seed': torch.initial_seed(),
+            'size': config['size'],
+            'num_steps': config['num_steps'],
+            'lr': float(config['lr']),
+            'phi_lr': float(config['phi_lr']),
+            'cfg': float(config['cfg']),
+            'prompt': config['prompt'],
+            'negative_prompt': config['negative_prompt']
+        },
+        'metrics': {
+            'losses': [float(x) for x in metrics['losses']],
+            'epoch_times': [float(x) for x in metrics['epoch_times']],
+            'unet_phi_times': [float(x) for x in metrics['unet_phi_times']],
+            'particle_times': [float(x) for x in metrics['particle_times']],
+            'peak_memory_usage': [float(x) for x in metrics['peak_memory_usage']],
+            'learning_rates': [float(x) for x in metrics['learning_rates']]
+        }
+    }
+    
+    filename = os.path.join(work_dir, f"{name}_{torch.initial_seed()}_metrics.json")
+    
+    with open(filename, 'w') as f:
+        json.dump(json_metrics, f, indent=4)
+    
+    print(f"[INFO] Metrics saved to: {filename}")
+    return filename
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--iter', type=int, required=False, default=0, help='Iteration number in a sequential script.')
+    parser.add_argument('--seed', type=int, required=False, default=None, help='Seed for random number generator.')
+    parser.add_argument('--config', type=str, required=False, default='config.yaml', help='Path to config file.')
+    parser.add_argument('--prompt', type=str, required=False, default=None, help='Prompt.')
+    return parser.parse_args()
 
 def tuple_constructor(loader, node):
     return tuple(loader.construct_sequence(node))
@@ -32,11 +80,11 @@ def parse_yaml(file_path):
 
 class DecayWeightScheduler:
     def __init__(self, 
-                 initial_wd=0.03,
-                 final_wd=0.01,
-                 decay_type='linear',
-                 warmup_steps=100,
-                 total_steps=1000):
+                 initial_wd=1e-2,
+                 final_wd=1e-3,
+                 decay_type='expoential',
+                 warmup_steps=1000,
+                 total_steps=10000):
         self.initial_wd = initial_wd
         self.final_wd = final_wd
         self.decay_type = decay_type
