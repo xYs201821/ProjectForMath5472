@@ -1,6 +1,6 @@
 # Project For MATH 5472
 
-This repository maintains the implementation of my course project for MATH5472--(2D experiments based on VSD and SDS forimages generation)
+This repository maintains an elementary implementation of my course project for MATH5472: (2D experiments for VSD and SDS methods)
 
 ## Requirements
 
@@ -87,7 +87,15 @@ Images are saved with numerical indices (e.g., `0000.png`, `0001.png`).
 
 ## Notes
 
-1. For generating 4 particles of pixel sizes=(512, 512), the peak memory usage is about 6GB. The average training time is around 15 mins. (not yet optimized, quite inefficient)
+1. For generating 4 particles of pixel sizes = (512, 512), the peak memory usage is about 6GB. The average training time is around 15 mins. (not yet optimized, quite inefficient)
 2. The script automatically uses CUDA if available, otherwise falls back to CPU.
 3. Images are generated in latent space and then decoded to pixel space.
 4. The seed is automatically adjusted for different processes identified by "--iter" to ensure variety.
+
+## Reference Implementation
+
+<a id="1">[1]</a>  Zhengyi Wang, Cheng Lu, Yikai Wang, et al. (2023). [Prolific Dreamer](https://github.com/thu-ml/prolificdreamer)
+
+<a id="1">[2]</a>  Yuanzhi Zhu, (2023). [unofficial implementation of 2D prolific_dreamer](https://github.com/yuanzhi-zhu/prolific_dreamer2d)
+
+<a id="1">[3]</a>  Justin Wu, (2023). [DreamFusionAcc](https://github.com/chinhsuanwu/dreamfusionacc/tree/master)
