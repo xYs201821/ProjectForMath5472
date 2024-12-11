@@ -1,56 +1,57 @@
-# Stable Diffusion Sampling with VSD/SDS
+# Project For MATH 5472
 
-This repository implements Vector Stochastic Dynamics (VSD) and Score Distillation Sampling (SDS) for Stable Diffusion image generation.
+This repository maintains the implementation of my course project for MATH5472--(2D experiments based on VSD and SDS forimages generation)
 
 ## Requirements
 
 ```bash
-pip install torch imageio pyyaml
+pip install -r requirements.txt
 ```
 
 ## Project Structure
 
-```
-.
-├── config/
-│   └── default.yaml
+```{java}
+
+├── config.yaml
 ├── main.py
 ├── sds.py
 ├── vsd.py
-├── Guidance.py
-└── Utility.py
+├── Guidance/
+|   └── sd_pipeline.py 
+└── Utility/
+    ├── lora.py
+    ├── miscellanea.py
+    └── utils.py 
+
 ```
 
 ## Configuration
 
-Create a YAML config file with the following parameters:
+Create a YAML config file (e.g. config.yaml )with the following parameters:
 
 ```yaml
-# Model Configuration
-pretrain_model_path: "path/to/stable-diffusion-model"
-lora_rank: 4
-lora_alpha: 4
+# general
+prompt: "Pancakes on a plate." # prompt that provides in commend line will overwrite prompt in YAML file
+negative_prompt: ""
+size: 1             # number of particles
+pixel: (512, 512)   # width, height
+num_steps: 2500     # Number of epochs
+guidance_scale: 7.5 # Classifier Free Guidance sacle
+lr: 3e-2            # Learning rate of particles
+seed: 42            
+time_weight: "sqrt_minus_cumprod" # | minus_cumprod | minus | cumprod | sqrt_minus_cumprod | sqrt_cumprod | 
+work_dir: "Output/" # Output directory
 
-# Generation Parameters
-seed: 42
-size: 4  # number of images to generate
-pixel: [512, 512]  # image dimensions
-num_steps: 50
-guidance_scale: 7.5
-lr: 0.01
-phi_lr: 0.01
+#lora params
+unet_phi: lora
+lora_rank: 32
+lora_alpha: 256
+phi_lr: 1e-4
 
-# Prompt Configuration
-prompt: "your prompt here"
-negative_prompt: "your negative prompt here"
-
-# Output Configuration
-work_dir: "outputs/"
-
-# Optional Parameters
-time_weight: 1.0
-test: false
-validation: false
+#pretrain_model
+pretrain_model_id:  "CompVis/stable-diffusion-v1-4"
+# pretrain_model_path: "***/CompVis/stable-diffusion-v1-4/"
+# local path is of high priority
 ```
 
 ## Usage
@@ -58,26 +59,20 @@ validation: false
 ### Basic Usage
 
 ```bash
-python main.py --config config/default.yaml
+python main.py --config config.yaml
 ```
 
 ### Custom Prompt
 
 ```bash
-python main.py --config config/default.yaml --prompt "your custom prompt"
-```
-
-### Multiple Iterations
-
-```bash
-python main.py --config config/default.yaml --iter 0
+python main.py --config config.yaml --prompt "your custom prompt"
 ```
 
 ## Output Structure
 
 The script generates images in three directories under the specified `work_dir`:
 
-- `pre/`: Initial generated images
+- `pre/`: Images generated using pretrained model (Stable-Diffusion).
 - `sds/`: Images generated using SDS sampling
 - `vsd/`: Images generated using VSD sampling
 
@@ -85,30 +80,14 @@ Images are saved with numerical indices (e.g., `0000.png`, `0001.png`).
 
 ## Command Line Arguments
 
-- `--config`: Path to the configuration YAML file (required)
-- `--prompt`: Override the prompt in config file (optional)
-- `--iter`: Iteration number for multiple runs (optional, default=0)
-
-## Features
-
-- Supports both CPU and CUDA devices
-- Implements LoRA (Low-Rank Adaptation) for efficient fine-tuning
-- Configurable sampling parameters
-- Multiple sampling methods (VSD/SDS)
-- Batch image generation
-- Seed control for reproducibility
+- `--config`: Path to the configuration YAML file. (required, default=
+- `--method`: Selected sampling method, one of ['all', 'pretrain', 'sds', 'vsd']. (optional, default='vsd') 'config.yaml')
+- `--prompt`: Override the prompt in YAML file. (optional, default=None)
+- `--iter`:   Number of current process for multiple runs. (not required)
 
 ## Notes
 
-1. Make sure you have sufficient GPU memory for the specified image size and batch size
-2. The script automatically uses CUDA if available, otherwise falls back to CPU
-3. Images are generated in latent space and then decoded to pixel space
-4. The seed is automatically adjusted for different iterations to ensure variety
-
-## Customization
-
-To modify the sampling behavior, you can:
-1. Uncomment the SDS sampling section in `main.py`
-2. Adjust the learning rates (`lr` and `phi_lr`) in the config
-3. Modify the number of steps (`num_steps`) for different quality-speed tradeoffs
-4. Change the guidance scale for stronger/weaker prompt adherence
+1. For generating 4 particles of pixel sizes=(512, 512), the peak memory usage is about 6GB. The average training time is around 15 mins. (not yet optimized, quite inefficient)
+2. The script automatically uses CUDA if available, otherwise falls back to CPU.
+3. Images are generated in latent space and then decoded to pixel space.
+4. The seed is automatically adjusted for different processes identified by "--iter" to ensure variety.

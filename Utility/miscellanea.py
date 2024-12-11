@@ -45,9 +45,9 @@ def save_metrics_json(metrics, work_dir, config, name='vsd'):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--iter', type=int, required=False, default=0, help='Iteration number in a sequential script.')
-    parser.add_argument('--seed', type=int, required=False, default=None, help='Seed for random number generator.')
     parser.add_argument('--config', type=str, required=False, default='config.yaml', help='Path to config file.')
     parser.add_argument('--prompt', type=str, required=False, default=None, help='Prompt.')
+    parser.add_argument('--method', type=str, required=False, default='vsd', help=' all | pretrain | sds | vsd ')
     return parser.parse_args()
 
 def tuple_constructor(loader, node):

@@ -1,0 +1,9 @@
+diffusers==0.31.0
+imageio==2.36.0
+numpy==2.2.0
+peft==0.14.0
+Pillow==11.0.0
+PyYAML==6.0.2
+torch==2.5.1
+tqdm==4.67.0
+transformers==4.47.0

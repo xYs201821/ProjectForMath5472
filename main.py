@@ -70,15 +70,16 @@ def main():
             img = model.decode_from_latents(latents[i].unsqueeze(0))
             img = model.display_image(img)
             imageio.imwrite(os.path.join(output_dir, f"{(i+args.iter*config["size"]):04d}.png"), img[0])
-        
-    # img_latents = model.generate_img(init_particles, dict)
-    # save_img(img_latents, output_pre)
-        
-    # img_latents = sds_sampling(model, init_particles, dict)
-    # save_img(img_latents, output_sds)
-        
-    img_latents = vsd_sampling(model, init_particles, dict)
-    save_img(img_latents, output_vsd)
+    
+    if args.method in ['pre', 'all']: 
+        img_latents = model.generate_img(init_particles, dict)
+        save_img(img_latents, output_pre)
+    if args.method in ['sds', 'all']: 
+        img_latents = sds_sampling(model, init_particles, dict)
+        save_img(img_latents, output_sds)
+    if args.method in ['vsd', 'all']: 
+        img_latents = vsd_sampling(model, init_particles, dict)
+        save_img(img_latents, output_vsd)
     
 
 if __name__ == "__main__":
