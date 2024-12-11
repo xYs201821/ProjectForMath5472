@@ -4,9 +4,9 @@ negative_prompt: ""
 batch_size: 1
 pixel: (512, 512)
 num_steps: 5000
-guidance_scale: 50
+guidance_scale: 7.5
 seed: 0
-time_weight: "minus_cumprod"
+time_weight: "sqrt_minus_cumprod"
 unet_phi: lora
 work_dir: "Output/"
 
