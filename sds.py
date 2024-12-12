@@ -31,7 +31,7 @@ def sds_sampling(model, init_particles, config):
         latents = particles
         #update particles
         t = get_random_timestep(min(model.scheduler.timesteps), max(model.scheduler.timesteps), size_t=(1, )).to(model.device)
-        noise_randn = torch.randn_like(latents).to(model.device)
+        noise_randn = torch.randn_like(input=latents).to(model.device)
         noise_latents = model.scheduler.add_noise(latents, noise_randn, t)
         noise_pred= get_noise_pred(model.unet, noise_latents, text_embeddings, t, cfg)
         grad = weights[t] * (noise_pred - noise_randn)

@@ -1,6 +1,11 @@
 """
-With the help of this script, you can calculate the FID score between two sets of images provided by its path.
+calculate the FID score between two sets of images provided by its path.
 """
+
+
+from cleanfid import fid
+
+print(fid.compute_fid("validation/output/pre", "validation/output/vsd"))
 
 # import torch
 # import torch.nn as nn
@@ -125,7 +130,3 @@ With the help of this script, you can calculate the FID score between two sets o
 #     return fid_score
 
 # calculate_fid_from_path(fakepath="validation/output/sds")
-
-# from cleanfid import fid
-
-# print(fid.compute_fid("Pancakes100/base", "Pancakes100/vsd"))

@@ -1,6 +1,6 @@
 # Project For MATH 5472
 
-This repository maintains an elementary implementation of my course project for MATH5472: (2D experiments for VSD and SDS methods)
+This repository maintains an elementary implementation of my course project for MATH5472: [2D experiments for VSD and SDS methods](report.pdf). 
 
 ## Requirements
 

@@ -8,7 +8,7 @@ guidance_scale: 7.5
 lr: 3e-2
 seed: 42
 time_weight: "sqrt_minus_cumprod"
-work_dir: "Output/"
+work_dir: "Pancakes100/"
 
 #lora params
 unet_phi: lora

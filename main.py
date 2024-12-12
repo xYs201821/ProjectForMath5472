@@ -58,13 +58,8 @@ def main():
     init_particles = torch.randn((config['size'], model.unet.config.in_channels, config["pixel"][0]//8, config["pixel"][1]//8)).to(model.device)
     
     output_dir = config["work_dir"]
-    output_pre = os.path.join(output_dir, "pre")
-    output_vsd = os.path.join(output_dir, "vsd")
-    output_sds = os.path.join(output_dir, "sds")
     os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(output_pre, exist_ok=True)
-    os.makedirs(output_sds, exist_ok=True)
-    os.makedirs(output_vsd, exist_ok=True)
+
     def save_img(latents, output_dir):
         for i in range(latents.shape[0]):
             img = model.decode_from_latents(latents[i].unsqueeze(0))
@@ -72,12 +67,18 @@ def main():
             imageio.imwrite(os.path.join(output_dir, f"{(i+args.iter*config["size"]):04d}.png"), img[0])
     
     if args.method in ['pre', 'all']: 
+        output_pre = os.path.join(output_dir, "pre")
+        os.makedirs(output_pre, exist_ok=True)  
         img_latents = model.generate_img(init_particles, dict)
-        save_img(img_latents, output_pre)
+        save_img(img_latents, output_dir)
     if args.method in ['sds', 'all']: 
+        output_sds = os.path.join(output_dir, "sds")
+        os.makedirs(output_sds, exist_ok=True)
         img_latents = sds_sampling(model, init_particles, dict)
         save_img(img_latents, output_sds)
     if args.method in ['vsd', 'all']: 
+        output_vsd = os.path.join(output_dir, "vsd")
+        os.makedirs(output_vsd, exist_ok=True)
         img_latents = vsd_sampling(model, init_particles, dict)
         save_img(img_latents, output_vsd)
     

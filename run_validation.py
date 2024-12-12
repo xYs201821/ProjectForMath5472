@@ -13,8 +13,8 @@ def run_program_with_json(json_file_path, program_to_run):
     active_processes = []
     for itr, entry in enumerate(data):
         if glob.glob(f"validation/output/vsd/*{itr}.png"):
-            print("Skipping ", entry['caption'], " File already exists!")
-            continue
+           print("Skipping ", entry['caption'], " File already exists!")
+           continue
         # Check if output file already exists
         # Wait if we already have max_concurrent processes running
         while len(active_processes) >= 3:
@@ -25,8 +25,6 @@ def run_program_with_json(json_file_path, program_to_run):
         
         # Extract relevant information
         prompt = entry['caption']
-        objects = ','.join(entry['objects'])
-        print(prompt, objects)
         
         try:
             # Start new process
@@ -35,7 +33,8 @@ def run_program_with_json(json_file_path, program_to_run):
                 program_to_run,
                 '--prompt', prompt,
                 '--iter', f"{itr}",
-                '--config', 'validation_config.yaml'
+                '--config', 'validation_config.yaml',
+                '--method', 'all'
             ])
             active_processes.append(process)
             
