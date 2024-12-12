@@ -54,6 +54,8 @@ pretrain_model_id:  "CompVis/stable-diffusion-v1-4"
 
 ## Usage
 
+Examples are also provided in [JupyterNotebook](sample.ipynb)
+
 ### Basic Usage
 
 ```bash
