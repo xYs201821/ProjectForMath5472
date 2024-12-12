@@ -1,6 +1,6 @@
 # Project For MATH 5472
 
-This repository maintains an elementary implementation of my course project for MATH5472: [2D experiments for VSD and SDS methods](report.pdf). 
+This repository maintains an elementary implementation of my course project for MATH5472: [2D experiments for VSD and SDS methods](report.pdf).
 
 ## Requirements
 
@@ -10,19 +10,17 @@ pip install -r requirements.txt
 
 ## Project Structure
 
-```{java}
-
+```bash
 ├── config.yaml
 ├── main.py
 ├── sds.py
 ├── vsd.py
 ├── Guidance/
-|   └── sd_pipeline.py 
+│   └── sd_pipeline.py
 └── Utility/
     ├── lora.py
     ├── miscellanea.py
     └── utils.py 
-
 ```
 
 ## Configuration
@@ -80,8 +78,8 @@ Images are saved with numerical indices (e.g., `0000.png`, `0001.png`).
 
 ## Command Line Arguments
 
-- `--config`: Path to the configuration YAML file. (required, default=
-- `--method`: Selected sampling method, one of ['all', 'pretrain', 'sds', 'vsd']. (optional, default='vsd') 'config.yaml')
+- `--config`: Path to the configuration YAML file. (required, default='config.yaml')
+- `--method`: Selected sampling method, one of ['all', 'pretrain', 'sds', 'vsd']. (optional, default='vsd')
 - `--prompt`: Override the prompt in YAML file. (optional, default=None)
 - `--iter`:   Number of current process for multiple runs. (not required)
 
@@ -94,8 +92,8 @@ Images are saved with numerical indices (e.g., `0000.png`, `0001.png`).
 
 ## Reference Implementation
 
-<a id="1">[1]</a>  Zhengyi Wang, Cheng Lu, Yikai Wang, et al. (2023). [Prolific Dreamer](https://github.com/thu-ml/prolificdreamer)
+[1]: [Zhengyi Wang, Cheng Lu, Yikai Wang, et al. "Prolific Dreamer"](https://github.com/thu-ml/prolificdreamer )
 
-<a id="1">[2]</a>  Yuanzhi Zhu, (2023). [unofficial implementation of 2D prolific_dreamer](https://github.com/yuanzhi-zhu/prolific_dreamer2d)
+[2]: [Yuanzhi Zhu, "Unofficial implementation of 2D prolific_dreamer"](https://github.com/yuanzhi-zhu/prolific_dreamer2d )
 
-<a id="1">[3]</a>  Justin Wu, (2023). [DreamFusionAcc](https://github.com/chinhsuanwu/dreamfusionacc/tree/master)
+[3]: [Justin Wu, "DreamFusioncc"](https://github.com/chinhsuanwu/dreamfusionacc/tree/master)
